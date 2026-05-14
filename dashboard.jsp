@@ -4,6 +4,7 @@
 <html>
     <head>
         <title>Dashboard</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
     </head>
     <body>
         <%
