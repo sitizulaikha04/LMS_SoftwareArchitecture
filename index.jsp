@@ -3,6 +3,7 @@
 <html>
     <head>
         <title>LMS Entry</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
     </head>
     <body>
         <h2>Learning Management System</h2>
