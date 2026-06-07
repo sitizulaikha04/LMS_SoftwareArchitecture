@@ -1,0 +1,89 @@
+
+
+CREATE DATABASE schoollms;
+USE schoollms;
+
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    fullname VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    role ENUM('Teacher','Student') NOT NULL
+);
+
+CREATE TABLE courses (
+    course_id INT AUTO_INCREMENT PRIMARY KEY,
+    course_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    teacher_id INT,
+    FOREIGN KEY (teacher_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE materials (
+    material_id INT AUTO_INCREMENT PRIMARY KEY,
+    course_id INT,
+    title VARCHAR(100),
+    file_path VARCHAR(255),
+    upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (course_id) REFERENCES courses(course_id)
+);
+
+CREATE TABLE assignments (
+    assignment_id INT AUTO_INCREMENT PRIMARY KEY,
+    course_id INT,
+    title VARCHAR(100),
+    description TEXT,
+    due_date DATE,
+    FOREIGN KEY (course_id) REFERENCES courses(course_id)
+);
+
+CREATE TABLE submissions (
+    submission_id INT AUTO_INCREMENT PRIMARY KEY,
+    assignment_id INT NOT NULL,
+    student_id INT NOT NULL,
+
+    file_name VARCHAR(255),
+    file_path VARCHAR(500),
+
+    grade DOUBLE DEFAULT 0,
+    feedback TEXT,
+
+    submit_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (assignment_id)
+        REFERENCES assignments(assignment_id),
+
+    FOREIGN KEY (student_id)
+        REFERENCES users(user_id)
+);
+
+CREATE TABLE announcements (
+    announcement_id INT AUTO_INCREMENT PRIMARY KEY,
+    course_id INT,
+    title VARCHAR(100),
+    message TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (course_id) REFERENCES courses(course_id)
+);
+
+
+
+CREATE TABLE submissions (
+    submission_id INT AUTO_INCREMENT PRIMARY KEY,
+    assignment_id INT NOT NULL,
+    student_id INT NOT NULL,
+
+    file_name VARCHAR(255),
+    file_path VARCHAR(500),
+
+    grade DOUBLE DEFAULT 0,
+    feedback TEXT,
+
+    submit_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (assignment_id)
+        REFERENCES assignments(assignment_id),
+
+    FOREIGN KEY (student_id)
+        REFERENCES users(user_id)
+);
