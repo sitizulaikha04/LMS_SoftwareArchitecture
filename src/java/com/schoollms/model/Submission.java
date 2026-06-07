@@ -4,6 +4,8 @@
  */
 package com.schoollms.model;
 
+import java.sql.Timestamp;
+
 public class Submission {
 
     private int submissionId;
@@ -11,6 +13,8 @@ public class Submission {
     private int studentId;
     private String fileName;
     private String filePath;
+
+    private Timestamp submitDate;
     private double grade;
     private String feedback;
 
@@ -55,6 +59,14 @@ public class Submission {
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
+    }
+
+    public Timestamp getSubmitDate() {
+        return submitDate;
+    }
+
+    public void setSubmitDate(Timestamp submitDate) {
+        this.submitDate = submitDate;
     }
 
     public double getGrade() {

@@ -4,6 +4,7 @@
     Author     : ADMIN
 --%>
 
+<%@page import="com.schoollms.dao.SubmissionDAO"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List"%>
 <%@page import="com.schoollms.model.User"%>
@@ -111,7 +112,15 @@
         <h3 class="fw-bold text-dark mb-3">Assignment Ledger</h3>
         <div class="card custom-card p-3">
             <table class="table align-middle">
-                <thead><tr><th>Course ID</th><th>Title</th><th>Due Date</th><th>Description</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Course ID</th>
+                        <th>Title</th>
+                        <th>Due Date</th>
+                        <th>Description</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
                 <tbody>
                     <% if(assignments != null) {
                         for(Assignment a : assignments) { %>
@@ -120,6 +129,62 @@
                             <td class="fw-bold"><%= a.getTitle() %></td>
                             <td><span class="badge bg-danger-subtle text-danger"><%= a.getDueDate() %></span></td>
                             <td><%= a.getDescription() %></td>
+
+                            <td>
+
+                            <% if(user.getRole().equals("Student")) { %>
+
+                            <%
+                                SubmissionDAO sdao = new SubmissionDAO();
+
+                                boolean submitted =
+                                        sdao.hasSubmitted(
+                                                a.getAssignmentId(),
+                                                user.getUserId());
+                            %>
+
+                            <% if(submitted){ %>
+
+                                <span class="badge bg-success">
+                                    Submitted
+                                </span>
+
+                            <% } else { %>
+
+                            <form action="SubmitAssignmentServlet"
+                                  method="post"
+                                  enctype="multipart/form-data">
+
+                                <input type="hidden"
+                                       name="assignmentId"
+                                       value="<%= a.getAssignmentId() %>">
+
+                                <input type="file"
+                                       name="assignmentFile"
+                                       class="form-control mb-2"
+                                       required>
+
+                                <button type="submit"
+                                        class="btn btn-success btn-sm">
+                                    Submit
+                                </button>
+
+                            </form>
+
+                            <% } %>
+
+                            <% } else { %>
+
+                            <a href="ViewSubmissionsServlet?assignmentId=<%= a.getAssignmentId() %>"
+                               class="btn btn-primary btn-sm">
+
+                               View Submissions
+
+                            </a>
+
+                            <% } %>
+
+                            </td>
                         </tr>
                     <% } } else { %>
                         <tr><td colspan="4" class="text-center text-muted">No assignments available.</td></tr>
