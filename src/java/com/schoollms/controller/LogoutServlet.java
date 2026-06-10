@@ -5,7 +5,6 @@
 package com.schoollms.controller;
 
 import java.io.IOException;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
@@ -13,21 +12,21 @@ import javax.servlet.http.*;
 @WebServlet("/LogoutServlet")
 public class LogoutServlet extends HttpServlet {
 
+    @Override
     protected void doGet(
             HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session =
-                request.getSession(false);
+        // Mengambil sesi aktif tanpa mencipta sesi baharu (false)
+        HttpSession session = request.getSession(false);
 
-        if(session != null){
-
+        if (session != null) {
+            // Memadamkan semua data maklumat pengguna di dalam sesi (Clear session data)
             session.invalidate();
-
         }
 
-        response.sendRedirect("login.jsp");
-
+        // FIXED: Menukar hala tuju dari 'login.jsp' ke 'index.jsp' (Halaman Portal Selection)
+        response.sendRedirect("index.jsp");
     }
 }
