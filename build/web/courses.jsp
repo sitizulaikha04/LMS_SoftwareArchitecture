@@ -1,6 +1,6 @@
 <%-- 
     Document   : courses
-    Created on : 4 Jun 2026, 12:18:53?pm
+    Created on : 4 Jun 2026, 12:18:53 pm
     Author     : ADMIN
 --%>
 
@@ -37,19 +37,11 @@ List<Course> courses = (List<Course>)request.getAttribute("courses");
         .main-content { flex-grow: 1; padding: 2.5rem; background-color: #f8fafc; }
         .custom-card { border: none; border-radius: 12px; background: #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .table-custom th { background-color: #f1f5f9; color: #475569; font-weight: 600; }
+        .profile-badge { background-color: rgba(255, 255, 255, 0.15); padding: 6px 14px; border-radius: 30px; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
         @media (max-width: 768px) {
             .dashboard-container { flex-direction: column; }
             .lms-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #e2e8f0; padding: 1rem; }
             .main-content { padding: 1.5rem; }
-        }
-        .profile-badge {
-            background-color: rgba(255, 255, 255, 0.15);
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
     </style>
 </head>
@@ -60,16 +52,9 @@ List<Course> courses = (List<Course>)request.getAttribute("courses");
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.jsp">
             <span>🏫</span> SchoolLMS
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-            <span class="navbar-toggler-icon"></span>
-        </button>
         <div class="collapse navbar-collapse" id="navbarContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
-                <li class="nav-item">
-                    <a class="nav-link active fw-semibold" href="dashboard.jsp">🏠 Home</a>
-                </li>
-            </ul>
-            
+            <%-- FIXED: Pautan berulang "Home" telah dibuang sepenuhnya dari ruangan ini --%>
+            <div class="navbar-nav me-auto mb-2 mb-lg-0"></div>
             <div class="d-flex align-items-center gap-3">
                 <div class="profile-badge text-white border border-white-10">
                     <span>👤</span>
@@ -90,6 +75,9 @@ List<Course> courses = (List<Course>)request.getAttribute("courses");
             <li><a class="sidebar-link active" href="CourseServlet"><span>📚</span> <span>Courses Matrix</span></a></li>
             <li><a class="sidebar-link" href="AssignmentServlet"><span>📝</span> <span>Assignments Ledger</span></a></li>
             <li><a class="sidebar-link" href="AnnouncementServlet"><span>📢</span> <span>Announcements Board</span></a></li>
+            <% if (user != null && "Student".equals(user.getRole())) { %>
+            <li><a class="sidebar-link" href="ViewStudentGradesServlet"><span>🏆</span> <span>My Grades & Feedback</span></a></li>
+            <% } %>
         </ul>
     </aside>
 
@@ -145,7 +133,5 @@ List<Course> courses = (List<Course>)request.getAttribute("courses");
         </div>
     </main>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,9 +1,10 @@
 <%-- 
     Document   : assignments
-    Created on : 4 Jun 2026, 12:19:12?pm
+    Created on : 4 Jun 2026, 12:19:12 pm
     Author     : ADMIN
 --%>
 
+<%@page import="com.schoollms.dao.AssignmentDAO"%>
 <%@page import="com.schoollms.dao.SubmissionDAO"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List"%>
@@ -16,6 +17,7 @@
         return;
     }
     List<Assignment> assignments = (List<Assignment>) request.getAttribute("assignments");
+    AssignmentDAO assignmentDao = new AssignmentDAO(); // Sediakan objek DAO untuk kegunaan skrip
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,16 +38,9 @@
         .sidebar-link.active { color: #ffffff; background-color: #0d6efd; font-weight: 600; }
         .main-content { flex-grow: 1; padding: 2.5rem; }
         .custom-card { border: none; border-radius: 12px; background: #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .profile-badge {
-            background-color: rgba(255, 255, 255, 0.15);
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
+        .profile-badge { background-color: rgba(255, 255, 255, 0.15); padding: 6px 14px; border-radius: 30px; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+        .notification-badge { display: inline-flex; align-items: center; justify-content: center; background-color: #dc3545; color: white; font-weight: 700; font-size: 0.75rem; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 50%; margin-left: 8px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -55,16 +50,8 @@
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.jsp">
             <span>🏫</span> SchoolLMS
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-            <span class="navbar-toggler-icon"></span>
-        </button>
         <div class="collapse navbar-collapse" id="navbarContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
-                <li class="nav-item">
-                    <a class="nav-link active fw-semibold" href="dashboard.jsp">🏠 Home</a>
-                </li>
-            </ul>
-            
+            <div class="navbar-nav me-auto mb-2 mb-lg-0"></div>
             <div class="d-flex align-items-center gap-3">
                 <div class="profile-badge text-white border border-white-10">
                     <span>👤</span>
@@ -76,21 +63,22 @@
         </div>
     </div>
 </nav>
-                
 
 <div class="dashboard-container">
     <aside class="lms-sidebar">
         <div class="sidebar-heading">Academic Modules</div>
-        <div class="sidebar-menu">
-            <a class="sidebar-link" href="dashboard.jsp"><span>📊</span> Dashboard Home</a>
-            <a class="sidebar-link" href="CourseServlet"><span>📚</span> Courses Matrix</a>
-            <a class="sidebar-link active" href="AssignmentServlet"><span>📝</span> Assignments Ledger</a>
-            <a class="sidebar-link" href="AnnouncementServlet"><span>📢</span> Announcements Board</a>
-        </div>
+        <ul class="sidebar-menu">
+            <li><a class="sidebar-link" href="dashboard.jsp"><span>📊</span> <span>Dashboard Home</span></a></li>
+            <li><a class="sidebar-link" href="CourseServlet"><span>📚</span> <span>Courses Matrix</span></a></li>
+            <li><a class="sidebar-link active" href="AssignmentServlet"><span>📝</span> <span>Assignments Ledger</span></a></li>
+            <li><a class="sidebar-link" href="AnnouncementServlet"><span>📢</span> <span>Announcements Board</span></a></li>
+            <% if (user != null && "Student".equals(user.getRole())) { %>
+            <li><a class="sidebar-link" href="ViewStudentGradesServlet"><span>🏆</span> <span>My Grades & Feedback</span></a></li>
+            <% } %>
+        </ul>
     </aside>
 
     <main class="main-content">
-        <%-- TEACHER ADD FORM --%>
         <% if("Teacher".equals(user.getRole())) { %>
         <div class="card custom-card mb-4 p-2">
             <div class="card-header bg-white fw-bold text-dark border-0 pt-3 fs-5">Publish New Assignment</div>
@@ -112,82 +100,62 @@
         <h3 class="fw-bold text-dark mb-3">Assignment Ledger</h3>
         <div class="card custom-card p-3">
             <table class="table align-middle">
-                <thead>
+                <thead class="table-light">
                     <tr>
+                        <th>Assignment ID</th>
                         <th>Course ID</th>
                         <th>Title</th>
                         <th>Due Date</th>
                         <th>Description</th>
-                        <th>Action</th>
+                        <th style="width: 340px;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <% if(assignments != null) {
                         for(Assignment a : assignments) { %>
                         <tr>
+                            <td class="fw-semibold text-secondary">#<%= a.getAssignmentId() %></td>
                             <td>#<%= a.getCourseId() %></td>
-                            <td class="fw-bold"><%= a.getTitle() %></td>
+                            <td class="fw-bold text-dark"><%= a.getTitle() %></td>
                             <td><span class="badge bg-danger-subtle text-danger"><%= a.getDueDate() %></span></td>
-                            <td><%= a.getDescription() %></td>
-
+                            <td class="small text-muted"><%= a.getDescription() %></td>
                             <td>
-
-                            <% if(user.getRole().equals("Student")) { %>
-
-                            <%
+                            <% if(user.getRole().equals("Student")) { 
                                 SubmissionDAO sdao = new SubmissionDAO();
-
-                                boolean submitted =
-                                        sdao.hasSubmitted(
-                                                a.getAssignmentId(),
-                                                user.getUserId());
-                            %>
-
-                            <% if(submitted){ %>
-
-                                <span class="badge bg-success">
-                                    Submitted
-                                </span>
-
+                                boolean submitted = sdao.hasSubmitted(a.getAssignmentId(), user.getUserId());
+                                if(submitted){ %>
+                                <span class="badge bg-success px-3 py-1.5 fs-7 rounded-2">Submitted</span>
                             <% } else { %>
-
-                            <form action="SubmitAssignmentServlet"
-                                  method="post"
-                                  enctype="multipart/form-data">
-
-                                <input type="hidden"
-                                       name="assignmentId"
-                                       value="<%= a.getAssignmentId() %>">
-
-                                <input type="file"
-                                       name="assignmentFile"
-                                       class="form-control mb-2"
-                                       required>
-
-                                <button type="submit"
-                                        class="btn btn-success btn-sm">
-                                    Submit
-                                </button>
-
+                            <form action="SubmitAssignmentServlet" method="post" enctype="multipart/form-data" class="p-2 border rounded-3 bg-light-subtle">
+                                <input type="hidden" name="assignmentId" value="<%= a.getAssignmentId() %>">
+                                <div class="mb-1.5">
+                                    <label class="form-label d-block text-secondary fw-bold small mb-1">Choose Submission File:</label>
+                                    <input type="file" name="assignmentFile" class="form-control form-control-sm" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label d-block text-secondary fw-bold small mb-1">Submission Description:</label>
+                                    <input type="text" name="submissionNotes" class="form-control form-control-sm placeholder-sm" placeholder="e.g., Final draft upload" required>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-sm w-100 fw-semibold shadow-sm">Submit Assignment</button>
                             </form>
-
+                            <% } } else { 
+                                // FIXED: Dapatkan bilangan tugasan pelajar yang belum disemak oleh pengajar
+                                int pendingCount = assignmentDao.getPendingSubmissionsCount(a.getAssignmentId());
+                            %>
+                            <div class="d-inline-flex align-items-center">
+                                <a href="ViewSubmissionsServlet?assignmentId=<%= a.getAssignmentId() %>" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold">
+                                    View Submissions
+                                </a>
+                                <% if (pendingCount > 0) { %>
+                                    <%-- Papar notifikasi badge berbentuk bulat berwarna merah jika ada data masuk --%>
+                                    <span class="notification-badge shadow-sm" title="<%= pendingCount %> Not Yet Reviewed"><%= pendingCount %></span>
+                                <% } %>
+                            </div>
                             <% } %>
-
-                            <% } else { %>
-
-                            <a href="ViewSubmissionsServlet?assignmentId=<%= a.getAssignmentId() %>"
-                               class="btn btn-primary btn-sm">
-
-                               View Submissions
-
-                            </a>
-
-                            <% } %>
-
                             </td>
                         </tr>
                     <% } } else { %>
-                        <tr><td colspan="4" class="text-center text-muted">No assignments available.</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted">No assignments available.</td></tr>
                     <% } %>
                 </tbody>
             </table>

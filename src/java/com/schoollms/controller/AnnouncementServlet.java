@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package com.schoollms.controller;
 
 import com.schoollms.dao.AnnouncementDAO;
@@ -17,51 +13,59 @@ import javax.servlet.http.*;
 @WebServlet("/AnnouncementServlet")
 public class AnnouncementServlet extends HttpServlet {
 
+    @Override
     protected void doGet(
             HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
 
-        AnnouncementDAO dao =
-                new AnnouncementDAO();
+        String action = request.getParameter("action");
+        AnnouncementDAO dao = new AnnouncementDAO();
 
-        List<Announcement> announcements =
-                dao.getAllAnnouncements();
+        // Mengendalikan operasi pemadaman rekod melalui pautan URL
+        if ("delete".equalsIgnoreCase(action)) {
+            String idStr = request.getParameter("id");
+            if (idStr != null && !idStr.trim().isEmpty()) {
+                int id = Integer.parseInt(idStr.trim());
+                dao.deleteAnnouncement(id);
+            }
+            response.sendRedirect("AnnouncementServlet");
+            return;
+        }
 
-        request.setAttribute(
-                "announcements",
-                announcements);
-
-        request.getRequestDispatcher(
-                "announcements.jsp")
-                .forward(request,response);
+        List<Announcement> announcements = dao.getAllAnnouncements();
+        request.setAttribute("announcements", announcements);
+        request.getRequestDispatcher("announcements.jsp").forward(request, response);
     }
 
+    @Override
     protected void doPost(
             HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
 
-        Announcement announcement =
-                new Announcement();
+        String action = request.getParameter("action");
+        AnnouncementDAO dao = new AnnouncementDAO();
 
-        announcement.setCourseId(
-        Integer.parseInt(
-        request.getParameter("courseId")));
+        if ("update".equalsIgnoreCase(action)) {
+            // Logik bagi pengemaskinian data (Update)
+            Announcement a = new Announcement();
+            a.setAnnouncementId(Integer.parseInt(request.getParameter("announcementId")));
+            a.setCourseId(Integer.parseInt(request.getParameter("courseId")));
+            a.setTitle(request.getParameter("title"));
+            a.setMessage(request.getParameter("message"));
 
-        announcement.setTitle(
-                request.getParameter("title"));
+            dao.updateAnnouncement(a);
+        } else {
+            // Logik lalai asal bagi penambahan data (Add)
+            Announcement announcement = new Announcement();
+            announcement.setCourseId(Integer.parseInt(request.getParameter("courseId")));
+            announcement.setTitle(request.getParameter("title"));
+            announcement.setMessage(request.getParameter("message"));
 
-        announcement.setMessage(
-                request.getParameter("message"));
+            dao.addAnnouncement(announcement);
+        }
 
-        AnnouncementDAO dao =
-                new AnnouncementDAO();
-
-        dao.addAnnouncement(
-                announcement);
-
-        response.sendRedirect(
-                "AnnouncementServlet");
+        response.sendRedirect("AnnouncementServlet");
     }
 }
