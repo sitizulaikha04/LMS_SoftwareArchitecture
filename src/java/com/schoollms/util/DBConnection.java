@@ -16,7 +16,7 @@ public class DBConnection {
             "root";
 
     private static final String PASSWORD =
-            "admin";
+            "";
 
     public static Connection getConnection() {
 
